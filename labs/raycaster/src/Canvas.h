@@ -25,6 +25,7 @@ protected:
     void enterEvent(QEvent* event);
     void resizeEvent(QResizeEvent* event) override;
 private:
+    bool drawing_polygon_ = false;
 
     Mode currentMode_;
     std::vector<Controller*> controllers_;

@@ -7,7 +7,7 @@ Canvas::Canvas(QWidget* parent)
     updateAutomaticPolygon();
 
     for (int i = 0; i < 10; ++i) {
-        controllers_.push_back(new Controller(QColor(255, 255, 255)));
+        controllers_.push_back(new Controller(QColor(200, 200, 200, 100)));
     }
 
     for (const auto& controller_ : controllers_) {
@@ -30,14 +30,13 @@ void Canvas::SetController(Controller* controller) {
 void Canvas::SetMode(Mode mode) {
     currentMode_ = mode;
 }
-
 void Canvas::mouseMoveEvent(QMouseEvent* event) {
     if (currentMode_ == Mode::Light) {
-        const QPointF basePos = event->pos();
-        const int radius = 14;
-        const int count = controllers_.size();
-
         if (!controllers_.empty()) {
+            const QPointF basePos = event->pos();
+            const int radius = 13;
+            const int count = controllers_.size();
+
             controllers_[0]->SetLightSource(basePos);
 
             for (int i = 1; i < count; ++i) {
@@ -46,37 +45,58 @@ void Canvas::mouseMoveEvent(QMouseEvent* event) {
                 controllers_[i]->SetLightSource(basePos + offset);
             }
         }
-
-        update();
+    } else if (drawing_polygon_) {
+        const QPointF basePos = event->pos();
+        for (auto& controller_ : controllers_) {
+            controller_->UpdateLastPolygon(basePos);
+        }
     }
+    update();
 }
 
-
 void Canvas::mousePressEvent(QMouseEvent* event) {
-    if (currentMode_ == Mode::Polygons) {
+    if (currentMode_ == Mode::Light) {
+        if (!controllers_.empty()) {
+            const QPointF basePos = event->pos();
+            const int radius = 13;
+            const int count = controllers_.size();
+
+            controllers_[0]->SetLightSource(basePos);
+
+            for (int i = 1; i < count; ++i) {
+                double angle = (2 * M_PI * (i - 1)) / (count - 1);
+                QPointF offset(radius * std::cos(angle), radius * std::sin(angle));
+                controllers_[i]->SetLightSource(basePos + offset);
+            }
+        }
+    } else if (currentMode_ == Mode::Polygons) {
         QPoint clickPos = event->pos();
         if (event->button() == Qt::LeftButton) {
-            currentPolygon_.append(clickPos);
-        } else if (event->button() == Qt::RightButton && currentPolygon_.size() > 2) {
-            Polygon poly;
-            for (const QPointF& vertex : currentPolygon_) {
-                poly.AddVertex(vertex);
+            if (!drawing_polygon_) {
+                drawing_polygon_ = true;
+                Polygon new_poly;
+                new_poly.AddVertex(event->pos());
+                new_poly.AddVertex(event->pos());
+                for (auto& controller_ : controllers_) {
+                    controller_->AddPolygon(new_poly);
+                }
+            } else {
+                for (auto& controller_ : controllers_) {
+                    controller_->AddVertexToLastPolygon(event->pos());
+                }
             }
-
-            for(const auto& controller_ : controllers_) {
-                controller_->AddPolygon(poly);
-            }
-            currentPolygon_.clear();
+        } else if (event->button() == Qt::RightButton) {
+            drawing_polygon_ = false;
         }
-        update();
     }
+    update();
 }
 
 
 void Canvas::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(QPen(Qt::white, 2));
+    painter.setPen(QPen(QColor(200, 200, 200, 100), 2));
 
     const auto& polygons = controllers_.front()->GetPolygons();
     for (const auto& polygon : polygons) {
@@ -87,8 +107,8 @@ void Canvas::paintEvent(QPaintEvent* event) {
             }
             painter.drawLine(vertices.back(), vertices.front());
         }
-        painter.setBrush(QColor(200, 200, 200, 50));
-        painter.setPen(QPen(Qt::white, 0.5));
+        painter.setBrush(QColor(200, 200, 200, 100));
+        painter.setPen(QColor(200, 200, 200, 100));
         for (const QPointF& point : vertices) {
             painter.drawEllipse(point, 3, 3);
         }
@@ -98,7 +118,7 @@ void Canvas::paintEvent(QPaintEvent* event) {
         for (size_t i = 0; i < currentPolygon_.size() - 1; ++i) {
             painter.drawLine(currentPolygon_[i], currentPolygon_[i + 1]);
         }
-        painter.setBrush(Qt::white);
+        painter.setBrush(QColor(200, 200, 200, 100));
         painter.setPen(Qt::NoPen);
         for (const QPointF& point : currentPolygon_) {
             painter.drawEllipse(point, 3, 3);
@@ -107,7 +127,7 @@ void Canvas::paintEvent(QPaintEvent* event) {
 
     if (currentMode_ == Mode::Light) {
         QPainter painter(this);
-        painter.setBrush(QColor(230, 230, 230, 100));
+        painter.setBrush(controllers_[0]->GetColor());
         painter.setPen(Qt::NoPen);
 
         for (const auto& controller_ : controllers_) {
@@ -127,9 +147,10 @@ void Canvas::paintEvent(QPaintEvent* event) {
 
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         for(const auto& controller_ : controllers_ ) {
-            painter.setBrush(QColor(240, 240, 240, 100));
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setBrush(QColor(200, 200, 200, 100));
             painter.setPen(Qt::black);
-            painter.drawEllipse(controller_->GetLightSource(), 3, 3);
+            painter.drawEllipse(controller_->GetLightSource(), 3.5, 3.5);
         }
     }
 }

@@ -52,8 +52,8 @@ std::vector<Ray> Controller::CastRays() {
         for (const auto& vertex : polygon.GetVertices()) {
             double angle = std::atan2(vertex.y() - light_source_.y(), vertex.x() - light_source_.x());
             Ray ray(light_source_, vertex, angle);
-            rays.push_back(ray.Rotate(0.01));
-            rays.push_back(ray.Rotate(-0.01));
+            rays.push_back(ray.Rotate(0.0001));
+            rays.push_back(ray.Rotate(-0.0001));
             rays.push_back(ray);
         }
     }
