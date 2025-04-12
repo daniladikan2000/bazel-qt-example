@@ -72,4 +72,3 @@
 ```bash
 bazel run //labs/raycaster:raycaster
 ```
-
