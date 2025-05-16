@@ -13,7 +13,6 @@ AddGrammarDialog::AddGrammarDialog(QWidget *parent) : QDialog(parent), buttonBox
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-
 void AddGrammarDialog::setupUi() {
     setWindowTitle(tr("Новый вопрос по грамматике"));
     setMinimumWidth(500);

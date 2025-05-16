@@ -39,9 +39,9 @@ private slots:
     void onExerciseDone(int score);
 
 private:
-    void initMenu();
-    void initUi();
-    //void loadData();
+    void setupMenu();
+    void setupUi();
+    // void loadData();
     void updateTitle();
     QTimer* startAndStopTimer();
 

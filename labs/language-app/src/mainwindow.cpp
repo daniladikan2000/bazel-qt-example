@@ -13,15 +13,17 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-    currentDifficulty(tr("Лёгкий")) {
+    currentTimeGrammar(60),
+    currentTimeTranslation(90),
+    currentDifficulty(tr("Лёгкий")){
 
     setWindowTitle(tr("Приложение для изучения языка"));
     resize(900, 700);
     setMinimumSize(640, 480);
 
-    initUi();
-    initMenu();
-    //loadData();
+    setupUi();
+    setupMenu();
+    // loadData();
 
     showWelcome();
     statusBar()->showMessage(tr("Готово к работе. Выберите упражнение и уровень сложности."), 5000);
@@ -30,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
 }
 
-void MainWindow::initUi() {
+void MainWindow::setupUi() {
     welcomePage = new QWidget(this);
     QVBoxLayout *welcomeLayout = new QVBoxLayout(welcomePage);
     welcomeLayout->setContentsMargins(30,30,30,30);
@@ -38,13 +40,13 @@ void MainWindow::initUi() {
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 20px;");
 
-    QLabel *textLabel = new QLabel(
+    QLabel *textLabel;
+    textLabel = new QLabel(
         tr("Это приложение поможет Вам в изучении языка.\n\n"
-           "Используйте меню |Упражнения| для выбора заданий.\n"
-           "Меню |Редактировать| позволит вам добавить свои вопросы и предложения.\n"
-           "В меню |Сложность| вы можете выбрать подходящий уровень."),
-        welcomePage
-        );
+            "Используйте меню |Упражнения| для выбора заданий.\n"
+            "Меню |Редактировать| позволит Вам добавить свои вопросы и предложения.\n"
+            "В меню |Сложность| Вы можете выбрать подходящий уровень."),
+        welcomePage);
     textLabel->setAlignment(Qt::AlignCenter);
     textLabel->setWordWrap(true);
     textLabel->setStyleSheet("font-size: 14pt; color: #34495e; line-height: 150%;");
@@ -70,7 +72,7 @@ void MainWindow::initUi() {
     connect(translationPage, &Translation::exerciseComplete, this, &MainWindow::onExerciseDone);
 }
 
-void MainWindow::initMenu() {
+void MainWindow::setupMenu() {
     exerciseMenu = menuBar()->addMenu(tr("&Упражнения"));
 
     welcomeAct = new QAction(tr("Главная страница"), this);
@@ -207,7 +209,9 @@ void MainWindow::addGrammarQ() {
             }
         }
     }
-    targetTimer->start();
+    if (targetTimer) {
+        targetTimer->start();
+    }
 }
 
 void MainWindow::addTranslationS() {
@@ -231,7 +235,9 @@ void MainWindow::addTranslationS() {
             }
         }
     }
-    targetTimer->start();
+    if (targetTimer) {
+        targetTimer->start();
+    }
 }
 
 void MainWindow::updateTitle() {
@@ -247,16 +253,20 @@ void MainWindow::updateTitle() {
 
 QTimer* MainWindow::startAndStopTimer() {
     QWidget *currentActiveWidget = stack->currentWidget();
-    QTimer *targetTimer;
+    QTimer *targetTimer = nullptr;
     if (currentActiveWidget == grammarPage) {
         if (grammarPage && grammarPage->getTimer()) {
             targetTimer = grammarPage->getTimer();
-            targetTimer->stop();
+            if (targetTimer) {
+                targetTimer->stop();
+            }
         }
     } else if (currentActiveWidget == translationPage) {
         if (translationPage && translationPage->getTimer()) {
             targetTimer = translationPage->getTimer();
-            targetTimer->stop();
+            if (targetTimer) {
+                targetTimer->stop();
+            }
         }
     }
     return targetTimer;
@@ -266,10 +276,18 @@ void MainWindow::showHelp() {
     QTimer* targetTimer = startAndStopTimer();
 
     QMessageBox::about(this, tr("О программе"),
-                       tr("<h2>Приложение для изучения языка v1.0</h2>"
+                       tr("<h2>Приложение для изучения языка</h2>"
                           "<p>Это приложение создано для помощи в изучении грамматики и перевода.</p>"
-                          "<p>Используйте меню для навигации и добавления новых заданий.</p>"
-                          "<p>Удачи в обучении!</p>"
+                          "<p><b>Основные возможности:</b></p>"
+                          "<ul>"
+                          "<li>Интерактивные упражнения по грамматике с выбором правильного варианта ответа.</li>"
+                          "<li>Задания на перевод предложений с исходного языка на целевой.</li>"
+                          "<li>Выбор уровня сложности (Лёгкий, Средний, Сложный), влияющий на время выполнения, количество попыток и начисляемые очки.</li>"
+                          "<li>Возможность добавлять собственные вопросы по грамматике и предложения для перевода через меню 'Редактировать'.</li>"
+                          "<li>Отслеживание прогресса с помощью таймера для каждого задания и подсчёт очков.</li>"
+                          "<li>Наглядное отображение текущего вопроса/предложения и общего прогресса в упражнении.</li>"
+                          "</ul>"
+                          "<p>Используйте меню для навигации, выбора упражнений, настройки сложности и добавления новых заданий.</p>"
                           "<p>Автор: Дикан Данила</p>"));
 
     if(targetTimer) {
