@@ -4,12 +4,13 @@
 #include "addtranslationdialog.h"
 
 #include <QActionGroup>
-#include <QMenuBar>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QMessageBox>
 #include <QApplication>
+#include <qevent.h>
+#include <QLabel>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QStatusBar>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupMenu();
     // loadData();
 
-    showWelcome();
+    ShowWelcome();
     statusBar()->showMessage(tr("Готово к работе. Выберите упражнение и уровень сложности."), 5000);
 }
 
@@ -34,14 +35,13 @@ MainWindow::~MainWindow() {
 
 void MainWindow::setupUi() {
     welcomePage = new QWidget(this);
-    QVBoxLayout *welcomeLayout = new QVBoxLayout(welcomePage);
-    welcomeLayout->setContentsMargins(30,30,30,30);
-    QLabel *titleLabel = new QLabel(tr("Добро пожаловать!"), welcomePage);
-    titleLabel->setAlignment(Qt::AlignCenter);
-    titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 20px;");
+    QVBoxLayout *welcome_layout = new QVBoxLayout(welcomePage);
+    welcome_layout->setContentsMargins(30,30,30,30);
+    QLabel *title_label = new QLabel(tr("Добро пожаловать!"), welcomePage);
+    title_label->setAlignment(Qt::AlignCenter);
+    title_label->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 20px;");
 
-    QLabel *textLabel;
-    textLabel = new QLabel(
+    QLabel *textLabel = new QLabel(
         tr("Это приложение поможет Вам в изучении языка.\n\n"
             "Используйте меню |Упражнения| для выбора заданий.\n"
             "Меню |Редактировать| позволит Вам добавить свои вопросы и предложения.\n"
@@ -51,11 +51,11 @@ void MainWindow::setupUi() {
     textLabel->setWordWrap(true);
     textLabel->setStyleSheet("font-size: 14pt; color: #34495e; line-height: 150%;");
 
-    welcomeLayout->addStretch(1);
-    welcomeLayout->addWidget(titleLabel);
-    welcomeLayout->addWidget(textLabel);
-    welcomeLayout->addStretch(2);
-    welcomePage->setLayout(welcomeLayout);
+    welcome_layout->addStretch(1);
+    welcome_layout->addWidget(title_label);
+    welcome_layout->addWidget(textLabel);
+    welcome_layout->addStretch(2);
+    welcomePage->setLayout(welcome_layout);
     welcomePage->setStyleSheet("background-color: #ecf0f1;");
 
     grammarPage = new Grammar(this);
@@ -68,24 +68,24 @@ void MainWindow::setupUi() {
 
     setCentralWidget(stack);
 
-    connect(grammarPage, &Grammar::exerciseComplete, this, &MainWindow::onExerciseDone);
-    connect(translationPage, &Translation::exerciseComplete, this, &MainWindow::onExerciseDone);
+    connect(grammarPage, &Grammar::exerciseComplete, this, &MainWindow::OnExerciseDone);
+    connect(translationPage, &Translation::exerciseComplete, this, &MainWindow::OnExerciseDone);
 }
 
 void MainWindow::setupMenu() {
     exerciseMenu = menuBar()->addMenu(tr("&Упражнения"));
 
     welcomeAct = new QAction(tr("Главная страница"), this);
-    connect(welcomeAct, &QAction::triggered, this, &MainWindow::showWelcome);
+    connect(welcomeAct, &QAction::triggered, this, &MainWindow::ShowWelcome);
     exerciseMenu->addAction(welcomeAct);
     exerciseMenu->addSeparator();
 
     grammarAct = new QAction(tr("Упражнения для &грамматики"), this);
-    connect(grammarAct, &QAction::triggered, this, &MainWindow::showGrammar);
+    connect(grammarAct, &QAction::triggered, this, &MainWindow::ShowGrammar);
     exerciseMenu->addAction(grammarAct);
 
     translationAct = new QAction(tr("Упражнения для &перевода"), this);
-    connect(translationAct, &QAction::triggered, this, &MainWindow::showTranslation);
+    connect(translationAct, &QAction::triggered, this, &MainWindow::ShowTranslation);
     exerciseMenu->addAction(translationAct);
 
     exerciseMenu->addSeparator();
@@ -96,11 +96,11 @@ void MainWindow::setupMenu() {
 
     editMenu = menuBar()->addMenu(tr("&Редактировать"));
     addGrammarAct = new QAction(tr("Добавить &вопрос (грамматика)..."), this);
-    connect(addGrammarAct, &QAction::triggered, this, &MainWindow::addGrammarQ);
+    connect(addGrammarAct, &QAction::triggered, this, &MainWindow::AddGrammarQ);
     editMenu->addAction(addGrammarAct);
 
     addTranslationAct = new QAction(tr("Добавить &предложение (перевод)..."), this);
-    connect(addTranslationAct, &QAction::triggered, this, &MainWindow::addTranslationS);
+    connect(addTranslationAct, &QAction::triggered, this, &MainWindow::AddTranslationS);
     editMenu->addAction(addTranslationAct);
 
     difficultyMenu = menuBar()->addMenu(tr("&Сложность"));
@@ -120,12 +120,15 @@ void MainWindow::setupMenu() {
 
     easyAct->setChecked(true);
 
-    connect(difficultyGroup, &QActionGroup::triggered, this, &MainWindow::onDifficultyAction);
+    connect(difficultyGroup, &QActionGroup::triggered, this, &MainWindow::OnDifficultyAction);
 
     helpMenu = menuBar()->addMenu(tr("&Справка"));
     helpAct = new QAction("&О программе...", this);
-    connect(helpAct, &QAction::triggered, this, &MainWindow::showHelp);
+    helpExercise = new QAction(tr("О &упражнении"), this);
+    connect(helpExercise, &QAction::triggered, this, &MainWindow::ShowHelpExercise);
+    connect(helpAct, &QAction::triggered, this, &MainWindow::ShowHelp);
     helpMenu->addAction(helpAct);
+    helpMenu->addAction(helpExercise);
 }
 
 // void MainWindow::loadData() {
@@ -142,26 +145,26 @@ void MainWindow::setupMenu() {
 //     translationData.append({tr("Could you please help me?"), tr("Не могли бы вы мне помочь, пожалуйста?"), 2});
 // }
 
-void MainWindow::showWelcome() {
+void MainWindow::ShowWelcome() {
     stack->setCurrentWidget(welcomePage);
     updateTitle();
 }
 
-void MainWindow::showGrammar() {
+void MainWindow::ShowGrammar() {
     grammarPage->updateLevel(currentDifficulty);
     grammarPage->startExercise(currentDifficulty, grammarData);
     stack->setCurrentWidget(grammarPage);
     updateTitle();
 }
 
-void MainWindow::showTranslation() {
+void MainWindow::ShowTranslation() {
     translationPage->updateLevel(currentDifficulty);
     translationPage->startExercise(currentDifficulty, translationData);
     stack->setCurrentWidget(translationPage);
     updateTitle();
 }
 
-void MainWindow::onDifficultyAction(QAction *action) {
+void MainWindow::OnDifficultyAction(const QAction *action) {
     if (action == easyAct) {
         currentDifficulty = tr("Лёгкий");
         currentTimeGrammar = 60;
@@ -179,19 +182,19 @@ void MainWindow::onDifficultyAction(QAction *action) {
     statusBar()->showMessage(tr("Уровень сложности изменен на: %1").arg(currentDifficulty), 3000);
     updateTitle();
 
-    QWidget *currentVisible = stack->currentWidget();
-    if (currentVisible == grammarPage) {
+    QWidget *current_visible = stack->currentWidget();
+    if (current_visible == grammarPage) {
         grammarPage->updateLevel(currentDifficulty);
         grammarPage->startExercise(currentDifficulty, grammarData, currentTimeGrammar);
-    } else if (currentVisible == translationPage) {
+    } else if (current_visible == translationPage) {
         translationPage->updateLevel(currentDifficulty);
         translationPage->startExercise(currentDifficulty, translationData, currentTimeTranslation);
     }
 
 }
 
-void MainWindow::addGrammarQ() {
-    QTimer* targetTimer = startAndStopTimer();
+void MainWindow::AddGrammarQ() {
+    QTimer* targetTimer = StartAndStopTimer();
 
     AddGrammarDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
@@ -209,13 +212,13 @@ void MainWindow::addGrammarQ() {
             }
         }
     }
-    if (targetTimer) {
+    if (targetTimer != nullptr) {
         targetTimer->start();
     }
 }
 
-void MainWindow::addTranslationS() {
-    QTimer* targetTimer = startAndStopTimer();
+void MainWindow::AddTranslationS() {
+    QTimer* target_timer = StartAndStopTimer();
 
     AddTranslationDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
@@ -235,8 +238,8 @@ void MainWindow::addTranslationS() {
             }
         }
     }
-    if (targetTimer) {
-        targetTimer->start();
+    if (target_timer != nullptr) {
+        target_timer->start();
     }
 }
 
@@ -251,29 +254,29 @@ void MainWindow::updateTitle() {
     setWindowTitle(title);
 }
 
-QTimer* MainWindow::startAndStopTimer() {
-    QWidget *currentActiveWidget = stack->currentWidget();
-    QTimer *targetTimer = nullptr;
-    if (currentActiveWidget == grammarPage) {
-        if (grammarPage && grammarPage->getTimer()) {
-            targetTimer = grammarPage->getTimer();
-            if (targetTimer) {
-                targetTimer->stop();
+QTimer* MainWindow::StartAndStopTimer() const {
+    const QWidget *current_active_widget = stack->currentWidget();
+    QTimer *target_timer = nullptr;
+    if (current_active_widget == grammarPage) {
+        if ((grammarPage != nullptr) && (grammarPage->getTimer() != nullptr)) {
+            target_timer = grammarPage->getTimer();
+            if (target_timer != nullptr) {
+                target_timer->stop();
             }
         }
-    } else if (currentActiveWidget == translationPage) {
-        if (translationPage && translationPage->getTimer()) {
-            targetTimer = translationPage->getTimer();
-            if (targetTimer) {
-                targetTimer->stop();
+    } else if (current_active_widget == translationPage) {
+        if ((translationPage != nullptr) && (translationPage->getTimer() != nullptr)) {
+            target_timer = translationPage->getTimer();
+            if (target_timer != nullptr) {
+                target_timer->stop();
             }
         }
     }
-    return targetTimer;
+    return target_timer;
 }
 
-void MainWindow::showHelp() {
-    QTimer* targetTimer = startAndStopTimer();
+void MainWindow::ShowHelp() {
+    QTimer* target_timer = StartAndStopTimer();
 
     QMessageBox::about(this, tr("О программе"),
                        tr("<h2>Приложение для изучения языка</h2>"
@@ -290,12 +293,12 @@ void MainWindow::showHelp() {
                           "<p>Используйте меню для навигации, выбора упражнений, настройки сложности и добавления новых заданий.</p>"
                           "<p>Автор: Дикан Данила</p>"));
 
-    if(targetTimer) {
-        targetTimer->start();
+    if(target_timer != nullptr) {
+        target_timer->start();
     }
 }
 
-void MainWindow::onExerciseDone(int score) {
+void MainWindow::OnExerciseDone(int score) {
     QString type;
     if (sender() == grammarPage) {
         type = tr("грамматике");
@@ -309,6 +312,76 @@ void MainWindow::onExerciseDone(int score) {
                              tr("Поздравляем! Упражнение по %1 завершено.\nВаш итоговый счёт: %2")
                                  .arg(type).arg(score));
 
-    showWelcome();
+    ShowWelcome();
     statusBar()->showMessage(tr("Упражнение завершено. Ваш счёт: %1").arg(score), 5000);
+}
+
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_H) {
+        ShowHelpExercise();
+        event->accept();
+    }
+}
+
+void MainWindow::ShowHelpExercise() {
+    QWidget *current_active_widget = stack->currentWidget();
+    QTimer* exerciseTimer = nullptr;
+    bool timerWasActive = false;
+
+    if (current_active_widget == grammarPage) {
+        exerciseTimer = grammarPage->getTimer();
+    } else if (current_active_widget == translationPage) {
+        exerciseTimer = translationPage->getTimer();
+    }
+
+    if (exerciseTimer && exerciseTimer->isActive()) {
+        exerciseTimer->stop();
+        timerWasActive = true;
+    }
+
+    if (current_active_widget == grammarPage) {
+        QMessageBox::information(this, tr("Подсказка: Упражнение по грамматике"),
+                                 tr("<h3>Упражнение по грамматике</h3>"
+                                    "<p>Вам будет предложен вопрос (обычно предложение с пропуском) и несколько вариантов ответа.</p>"
+                                    "<p><b>Ваша задача:</b> выбрать единственно верный вариант, который грамматически правильно дополняет предложение.</p>"
+                                    "<h4>Как это работает:</h4>"
+                                    "<ul>"
+                                    "<li>Прочитайте внимательно предложение.</li>"
+                                    "<li>Рассмотрите все предложенные варианты ответа.</li>"
+                                    "<li>Выберите тот вариант, который, по вашему мнению, является правильным, кликнув по нему.</li>"
+                                    "<li>Нажмите кнопку 'Ответить' для проверки.</li>"
+                                    "</ul>"
+                                    "<p><b>Уровни сложности влияют на:</b></p>"
+                                    "<ul>"
+                                    "<li>Время, отведённое на ответ.</li>"
+                                    "<li>Количество допустимых ошибок на один вопрос.</li>"
+                                    "<li>Количество очков за правильный ответ.</li>"
+                                    "</ul>"));
+    } else if (current_active_widget == translationPage) {
+        QMessageBox::information(this, tr("Подсказка: Упражнение по переводу"),
+                                 tr("<h3>Упражнение по переводу</h3>"
+                                    "<p>Вам будет дано предложение на исходном языке.</p>"
+                                    "<p><b>Ваша задача:</b> как можно точнее перевести это предложение на целевой язык и ввести ваш перевод в текстовое поле.</p>"
+                                    "<h4>Как это работает:</h4>"
+                                    "<ul>"
+                                    "<li>Внимательно прочитайте исходное предложение.</li>"
+                                    "<li>Сформулируйте его перевод на целевом языке.</li>"
+                                    "<li>Введите ваш вариант перевода в поле ввода. Обращайте внимание на знаки препинания и регистр, если это важно для языка.</li>"
+                                    "<li>Нажмите кнопку 'Отправить перевод' для проверки.</li>"
+                                    "</ul>"
+                                    "<p><b>Уровни сложности влияют на:</b></p>"
+                                    "<ul>"
+                                    "<li>Время, отведённое на перевод.</li>"
+                                    "<li>Количество допустимых ошибок на одно предложение.</li>"
+                                    "<li>Количество очков за правильный перевод.</li>"
+                                    "</ul>"));
+    } else {
+        QMessageBox::information(this, tr("Информация"),
+                                 tr("Чтобы получить подсказку по конкретному упражнению, пожалуйста, сначала перейдите к этому упражнению через меню 'Упражнения', а затем нажмите клавишу 'H' (или выберите соответствующий пункт меню, если он есть)."));
+    }
+
+    if (timerWasActive && exerciseTimer) {
+        exerciseTimer->start();
+    }
 }

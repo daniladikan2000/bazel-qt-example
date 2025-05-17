@@ -2,9 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QStackedWidget>
-#include <QAction>
 #include <QMenu>
+#include <QStackedWidget>
 
 #include "grammar.h"
 #include "translation.h"
@@ -28,22 +27,25 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    void keyPressEvent(QKeyEvent *event) override;
+
 private slots:
-    void showGrammar();
-    void showTranslation();
-    void showWelcome();
-    void onDifficultyAction(QAction *action);
-    void addGrammarQ();
-    void addTranslationS();
-    void showHelp();
-    void onExerciseDone(int score);
+    void ShowGrammar();
+    void ShowTranslation();
+    void ShowWelcome();
+    void OnDifficultyAction(const QAction *action);
+    void AddGrammarQ();
+    void AddTranslationS();
+    void ShowHelp();
+    void ShowHelpExercise();
+    void OnExerciseDone(int score);
 
 private:
     void setupMenu();
     void setupUi();
     // void loadData();
     void updateTitle();
-    QTimer* startAndStopTimer();
+    QTimer* StartAndStopTimer() const;
 
     QMenu *exerciseMenu;
     QMenu *editMenu;
@@ -64,6 +66,7 @@ private:
     QAction *hardAct;
 
     QAction *helpAct;
+    QAction *helpExercise;
 
     QStackedWidget *stack;
     QWidget *welcomePage;
