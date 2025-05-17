@@ -56,5 +56,9 @@
 
 ## Сборка и запуск
 
+ ```bash
+    bazel run //labs/language-app:language_app
+ ```
+
 
 
