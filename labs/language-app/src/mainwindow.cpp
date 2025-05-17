@@ -43,20 +43,12 @@ void MainWindow::setupUi() {
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 15px;");
 
-    QLabel *introLabel = new QLabel(
-        tr("Это приложение поможет Вам в изучении языка."),
-        welcomePage
-    );
-    introLabel->setAlignment(Qt::AlignCenter);
-    introLabel->setWordWrap(true);
-    introLabel->setStyleSheet("font-size: 14pt; color: #34495e; margin-bottom: 25px;");
-
     QLabel *usageTitleLabel = new QLabel(tr("Как пользоваться приложением:"), welcomePage);
     usageTitleLabel->setAlignment(Qt::AlignLeft);
     usageTitleLabel->setStyleSheet("font-size: 16pt; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
 
     QLabel *usageInstructionsLabel = new QLabel(
-    tr("1.  <b>Запустите приложение.</b> (Вы уже здесь!)<br>" // Используем <br> для переноса строки в HTML
+    tr("1.  <b>Запустите приложение.</b> (Вы уже здесь!)<br>"
        "2.  <b>Выберите сложность:</b><br>"
        "    Используйте меню <i>Сложность</i>, чтобы выбрать уровень: <i>Лёгкий</i>, <i>Средний</i> или <i>Сложный</i>.<br>"
        "3.  <b>Выберите упражнение:</b><br>"
@@ -81,7 +73,6 @@ void MainWindow::setupUi() {
     usageInstructionsLabel->setStyleSheet("font-size: 12pt; color: #34495e; line-height: 150%;");
 
     welcomeLayout->addWidget(titleLabel);
-    welcomeLayout->addWidget(introLabel);
     welcomeLayout->addStretch(1);
     welcomeLayout->addWidget(usageTitleLabel);
     welcomeLayout->addWidget(usageInstructionsLabel);
@@ -277,10 +268,9 @@ void MainWindow::AddTranslationS() {
 
 void MainWindow::updateTitle() {
     QString title = tr("Приложение для изучения языка");
-    QWidget *current = stack->currentWidget();
-    if (current == grammarPage) {
+    if (stack->currentWidget() == grammarPage) {
         title = tr("Грамматика - %1").arg(currentDifficulty);
-    } else if (current == translationPage) {
+    } else if (stack->currentWidget() == translationPage) {
         title = tr("Перевод - %1").arg(currentDifficulty);
     }
     setWindowTitle(title);

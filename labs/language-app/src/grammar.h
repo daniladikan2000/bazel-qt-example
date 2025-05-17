@@ -35,7 +35,7 @@ private slots:
     void onQuestionTimerTimeout();
 
 private:
-    void initGui();
+    void setupUi();
     void applyStyle();
     void loadDifficultySettings();
     void clearOptions();

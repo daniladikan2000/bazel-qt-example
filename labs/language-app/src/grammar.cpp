@@ -15,7 +15,7 @@ Grammar::Grammar(QWidget *parent)
     timeAllowedPerQ(30),
     timeRemaining(0) {
 
-    initGui();
+    setupUi();
     applyStyle();
     loadDifficultySettings();
 
@@ -35,7 +35,7 @@ Grammar::Grammar(QWidget *parent)
 Grammar::~Grammar() {
 }
 
-void Grammar::initGui() {
+void Grammar::setupUi() {
     mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(15);
     mainLayout->setContentsMargins(20, 20, 20, 20);
@@ -230,11 +230,11 @@ void Grammar::updateLevel(const QString &level) {
 
 void Grammar::loadDifficultySettings() {
     if (difficultyLevel == tr("Лёгкий")) {
-        maxAttempts = 5;
+        maxAttempts = 3;
         pointsPerQ = 1;
         timeAllowedPerQ = 60;
     } else if (difficultyLevel == tr("Средний")) {
-        maxAttempts = 3;
+        maxAttempts = 2;
         pointsPerQ = 2;
         timeAllowedPerQ = 30;
     } else if (difficultyLevel == tr("Сложный")) {
@@ -242,8 +242,6 @@ void Grammar::loadDifficultySettings() {
         pointsPerQ = 3;
         timeAllowedPerQ = 10;
     }
-
-
 }
 
 void Grammar::displayQuestion() {
@@ -307,8 +305,8 @@ void Grammar::checkAnswer(bool timedOut) {
         return;
     }
 
-    int checkedId = optionGroup->checkedId();
-    if (checkedId == -1) {
+    const int checked_id = optionGroup->checkedId();
+    if (checked_id == -1) {
         QMessageBox::warning(this, tr("Внимание"), tr("Пожалуйста, выберите вариант ответа."));
         if (timeRemaining > 0) {
             timer->start(1000);
@@ -316,24 +314,19 @@ void Grammar::checkAnswer(bool timedOut) {
         return;
     }
 
-    if (checkedId == currentQ.correctOption) {
+    if (checked_id == currentQ.correctOption) {
         score += pointsPerQ;
-        QMessageBox::information(this, tr("Результат"), tr("Правильно! +%1 очко. Ваш счёт: %2").arg(pointsPerQ).arg(score));
         nextQuestion();
     } else {
         currentFails++;
         emit answerIncorrect();
-        int attemptsLeft = maxAttempts - currentFails;
-
-        if (attemptsLeft > 0) {
-            QMessageBox::warning(this, tr("Результат"), tr("Неправильно. Осталось попыток: %1").arg(attemptsLeft));
+        int const attempts_left = maxAttempts - currentFails;
+        if (attempts_left > 0) {
+            QMessageBox::warning(this, tr("Результат"), tr("Неправильно. Осталось попыток: %1").arg(attempts_left));
             if (timeRemaining > 0) {
                 timer->start(1000);
             }
         } else {
-            QMessageBox::critical(this, tr("Результат"),
-                                  tr("Попытки исчерпаны.\nПравильный ответ: %1")
-                                      .arg(currentQ.options.at(currentQ.correctOption)));
             nextQuestion();
         }
     }

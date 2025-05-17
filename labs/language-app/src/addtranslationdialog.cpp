@@ -1,4 +1,5 @@
 #include "addtranslationdialog.h"
+
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QComboBox>

@@ -1,16 +1,12 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
-#include <QWidget>
 #include <QVector>
-
-class QLabel;
-class QTextEdit;
-class QPushButton;
-class QHBoxLayout;
-class QVBoxLayout;
-class QProgressBar;
-class QTimer;
+#include <QLabel>
+#include <QTextEdit>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 struct Sentence;
 

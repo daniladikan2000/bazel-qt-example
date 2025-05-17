@@ -275,7 +275,7 @@ void Translation::checkAnswer(bool timedOut) {
     if (timedOut) {
         emit answerIncorrect();
         emit timeExpiredForItem();
-        QMessageBox::warning(this, tr("Время вышло!"), tr("Время на перевод истекло.\nПравильный перевод: %1").arg(s.translation));
+        QMessageBox::warning(this, tr("Время вышло!"), tr("Время на перевод истекло."));
         nextItem();
         return;
     }
@@ -288,7 +288,6 @@ void Translation::checkAnswer(bool timedOut) {
 
     if (userAnswer.compare(s.translation, Qt::CaseInsensitive) == 0) {
         score += pointsPerItem;
-        QMessageBox::information(this, tr("Результат"), tr("Правильно! +%1 очко. Ваш счёт: %2").arg(pointsPerItem).arg(score));
         nextItem();
     } else {
         currentFails++;
@@ -299,9 +298,6 @@ void Translation::checkAnswer(bool timedOut) {
             QMessageBox::warning(this, tr("Результат"), tr("Неправильно. Осталось попыток: %1").arg(attemptsLeft));
             if(timeRemaining > 0) timer->start(1000);
         } else {
-            QMessageBox::critical(this, tr("Результат"),
-                                  tr("Попытки исчерпаны.\nПравильный перевод: %1")
-                                      .arg(s.translation));
             nextItem();
         }
     }
