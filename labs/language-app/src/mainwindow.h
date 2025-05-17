@@ -43,7 +43,7 @@ private slots:
 private:
     void setupMenu();
     void setupUi();
-    // void loadData();
+    void loadData();
     void updateTitle();
     QTimer* StartAndStopTimer() const;
 

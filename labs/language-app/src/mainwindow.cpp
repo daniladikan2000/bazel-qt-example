@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupUi();
     setupMenu();
-    // loadData();
+    loadData();
 
     ShowWelcome();
     statusBar()->showMessage(tr("Готово к работе. Выберите упражнение и уровень сложности."), 5000);
@@ -35,27 +35,59 @@ MainWindow::~MainWindow() {
 
 void MainWindow::setupUi() {
     welcomePage = new QWidget(this);
-    QVBoxLayout *welcome_layout = new QVBoxLayout(welcomePage);
-    welcome_layout->setContentsMargins(30,30,30,30);
-    QLabel *title_label = new QLabel(tr("Добро пожаловать!"), welcomePage);
-    title_label->setAlignment(Qt::AlignCenter);
-    title_label->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 20px;");
+    QVBoxLayout *welcomeLayout = new QVBoxLayout(welcomePage);
+    welcomeLayout->setContentsMargins(30, 30, 30, 30);
+    welcomeLayout->setSpacing(20);
 
-    QLabel *textLabel = new QLabel(
-        tr("Это приложение поможет Вам в изучении языка.\n\n"
-            "Используйте меню |Упражнения| для выбора заданий.\n"
-            "Меню |Редактировать| позволит Вам добавить свои вопросы и предложения.\n"
-            "В меню |Сложность| Вы можете выбрать подходящий уровень."),
+    QLabel *titleLabel = new QLabel(tr("Добро пожаловать!"), welcomePage);
+    titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setStyleSheet("font-size: 28pt; font-weight: bold; color: #2c3e50; margin-bottom: 15px;");
+
+    QLabel *introLabel = new QLabel(
+        tr("Это приложение поможет Вам в изучении языка."),
+        welcomePage
+    );
+    introLabel->setAlignment(Qt::AlignCenter);
+    introLabel->setWordWrap(true);
+    introLabel->setStyleSheet("font-size: 14pt; color: #34495e; margin-bottom: 25px;");
+
+    QLabel *usageTitleLabel = new QLabel(tr("Как пользоваться приложением:"), welcomePage);
+    usageTitleLabel->setAlignment(Qt::AlignLeft);
+    usageTitleLabel->setStyleSheet("font-size: 16pt; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
+
+    QLabel *usageInstructionsLabel = new QLabel(
+    tr("1.  <b>Запустите приложение.</b> (Вы уже здесь!)<br>" // Используем <br> для переноса строки в HTML
+       "2.  <b>Выберите сложность:</b><br>"
+       "    Используйте меню <i>Сложность</i>, чтобы выбрать уровень: <i>Лёгкий</i>, <i>Средний</i> или <i>Сложный</i>.<br>"
+       "3.  <b>Выберите упражнение:</b><br>"
+       "    В меню <i>Упражнения</i> выберите:<br>"
+       "    •  <i>Упражнения для грамматики</i><br>"
+       "    •  <i>Упражнения для перевода</i><br>"
+       "4.  <b>Начните упражнение:</b><br>"
+       "    Нажмите кнопку 'Начать' на странице упражнения.<br>"
+       "5.  <b>Выполняйте задания:</b><br>"
+       "    •  Для грамматики: выберите вариант и нажмите 'Ответить'.<br>"
+       "    •  Для перевода: введите ваш перевод и нажмите 'Отправить перевод'.<br>"
+       "6.  <b>Добавляйте свой контент (по желанию):</b><br>"
+       "    В меню <i>Редактировать</i>:<br>"
+       "    •  <i>Добавить вопрос (грамматика)...</i><br>"
+       "    •  <i>Добавить предложение (перевод)...</i><br>"
+       "7.  <b>Получите справку:</b><br>"
+       "    В меню <i>Справка</i> выберите <i>О программе</i> или <i>О упражнении</i> для дополнительной информации."),
         welcomePage);
-    textLabel->setAlignment(Qt::AlignCenter);
-    textLabel->setWordWrap(true);
-    textLabel->setStyleSheet("font-size: 14pt; color: #34495e; line-height: 150%;");
+    usageInstructionsLabel->setAlignment(Qt::AlignLeft);
+    usageInstructionsLabel->setWordWrap(true);
+    usageInstructionsLabel->setTextFormat(Qt::RichText);
+    usageInstructionsLabel->setStyleSheet("font-size: 12pt; color: #34495e; line-height: 150%;");
 
-    welcome_layout->addStretch(1);
-    welcome_layout->addWidget(title_label);
-    welcome_layout->addWidget(textLabel);
-    welcome_layout->addStretch(2);
-    welcomePage->setLayout(welcome_layout);
+    welcomeLayout->addWidget(titleLabel);
+    welcomeLayout->addWidget(introLabel);
+    welcomeLayout->addStretch(1);
+    welcomeLayout->addWidget(usageTitleLabel);
+    welcomeLayout->addWidget(usageInstructionsLabel);
+    welcomeLayout->addStretch(2);
+
+    welcomePage->setLayout(welcomeLayout);
     welcomePage->setStyleSheet("background-color: #ecf0f1;");
 
     grammarPage = new Grammar(this);
@@ -123,27 +155,27 @@ void MainWindow::setupMenu() {
     connect(difficultyGroup, &QActionGroup::triggered, this, &MainWindow::OnDifficultyAction);
 
     helpMenu = menuBar()->addMenu(tr("&Справка"));
-    helpAct = new QAction("&О программе...", this);
-    helpExercise = new QAction(tr("О &упражнении"), this);
+    helpAct = new QAction("&О программе", this);
+    helpExercise = new QAction(tr("Об &упражнении"), this);
     connect(helpExercise, &QAction::triggered, this, &MainWindow::ShowHelpExercise);
     connect(helpAct, &QAction::triggered, this, &MainWindow::ShowHelp);
     helpMenu->addAction(helpAct);
     helpMenu->addAction(helpExercise);
 }
 
-// void MainWindow::loadData() {
-//     grammarData.append({tr("The cat ___ on the mat."), {tr("sit"), tr("sits"), tr("sitting"), tr("sat")}, 1});
-//     grammarData.append({tr("She ___ to the store yesterday."), {tr("go"), tr("goes"), tr("went"), tr("gone")}, 2});
-//     grammarData.append({tr("___ you like some tea?"), {tr("Do"), tr("Does"), tr("Would"), tr("Will")}, 2});
-//     grammarData.append({tr("My brother is ___ than me."), {tr("tall"), tr("taller"), tr("tallest"), tr("more tall")}, 1});
-//     grammarData.append({tr("I haven't seen him ___ last year."), {tr("for"), tr("since"), tr("ago"), tr("from")}, 1});
-//
-//     translationData.append({tr("Hello, world!"), tr("Привет, мир!"), 1});
-//     translationData.append({tr("This is an interesting book."), tr("Это интересная книга."), 2});
-//     translationData.append({tr("The weather is wonderful today."), tr("Сегодня прекрасная погода."), 1});
-//     translationData.append({tr("Practice makes perfect."), tr("Повторение - мать учения."), 3});
-//     translationData.append({tr("Could you please help me?"), tr("Не могли бы вы мне помочь, пожалуйста?"), 2});
-// }
+void MainWindow::loadData() {
+    grammarData.append({tr("The cat ___ on the mat."), {tr("sit"), tr("sits"), tr("sitting"), tr("sat")}, 1});
+    grammarData.append({tr("She ___ to the store yesterday."), {tr("go"), tr("goes"), tr("went"), tr("gone")}, 2});
+    grammarData.append({tr("___ you like some tea?"), {tr("Do"), tr("Does"), tr("Would"), tr("Will")}, 2});
+    grammarData.append({tr("My brother is ___ than me."), {tr("tall"), tr("taller"), tr("tallest"), tr("more tall")}, 1});
+    grammarData.append({tr("I haven't seen him ___ last year."), {tr("for"), tr("since"), tr("ago"), tr("from")}, 1});
+
+    translationData.append({tr("Hello, world!"), tr("Привет, мир!"), 1});
+    translationData.append({tr("This is an interesting book."), tr("Это интересная книга."), 2});
+    translationData.append({tr("The weather is wonderful today."), tr("Сегодня прекрасная погода."), 1});
+    translationData.append({tr("Practice makes perfect."), tr("Повторение - мать учения."), 3});
+    translationData.append({tr("Could you please help me?"), tr("Не могли бы вы мне помочь, пожалуйста?"), 2});
+}
 
 void MainWindow::ShowWelcome() {
     stack->setCurrentWidget(welcomePage);

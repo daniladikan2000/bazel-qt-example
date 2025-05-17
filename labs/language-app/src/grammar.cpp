@@ -41,6 +41,7 @@ void Grammar::initGui() {
     mainLayout->setContentsMargins(20, 20, 20, 20);
 
     topInfoLayout = new QHBoxLayout();
+
     infoLabel = new QLabel(this);
     timeLabel = new QLabel(this);
     timeLabel->setAlignment(Qt::AlignRight);
@@ -115,15 +116,15 @@ void Grammar::applyStyle() {
             color: #e8a865;
         }
         QProgressBar#progressBar {
-            min-height: 20px;
-            max-height: 20px;
+            min-height: 12px;
+            max-height: 12px;
             border-radius: 6px;
             text-align: center;
             color: #ffffff;
             font-size: 15px;
         }
         QProgressBar#progressBar::chunk {
-            background-color: #5A9BD5;
+            background-color: #1abc9c;
             border-radius: 6px;
         }
         QLabel#questionLabel {
