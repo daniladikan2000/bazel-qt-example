@@ -20,12 +20,9 @@
 ##  Скриншоты
 
 <p align="center">
-  <img src="Photo/1.png" alt="Скриншот 1" width="300"/>
-  <img src="Photo/2.png" alt="Скриншот 2" width="300"/>
-  <img src="Photo/3.png" alt="Скриншот 3" width="300"/>
-  <img src="Photo/4.png" alt="Скриншот 4" width="300"/>
-  <img src="Photo/5.png" alt="Скриншот 5" width="300"/>
-  <img src="Photo/6.png" alt="Скриншот 6" width="300"/>
+  <img src="1.png" alt="Скриншот 1" width="300"/>
+  <img src="2.png" alt="Скриншот 2" width="300"/>
+  <img src="3.png" alt="Скриншот 3" width="300"/>
 </p>
 
 ## Использование
